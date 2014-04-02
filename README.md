@@ -14,7 +14,7 @@ The best way is to create a new class that extends _ExtendedCalendarView_ (becau
 	import android.util.AttributeSet;
 	import com.tyczj.extendedcalendarview.ExtendedCalendarView;
 	
-	public class MyCalendarView extends ExtendedCalendarView<CalendarioEvent> {
+	public class MyCalendarView extends ExtendedCalendarView<Event> {
 
 		public MyCalendarView(Context context) {
 			super(context);
