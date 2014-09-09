@@ -36,8 +36,8 @@ public class ExtendedCalendarView<T extends Event> extends FrameLayout implement
 	private boolean duplicatesAvoided = false;
 	private GridView calendarGridView;
 
-	private static SimpleDateFormat monthFormat = new SimpleDateFormat("MMMM");
-	
+	private static SimpleDateFormat monthFormat = new SimpleDateFormat("MMMM", Locale.getDefault());
+
 	private Calendar cal;
 	private CalendarAdapter<T> mAdapter;
 
@@ -65,6 +65,12 @@ public class ExtendedCalendarView<T extends Event> extends FrameLayout implement
 
 	private void init() {
 		cal = Calendar.getInstance(Locale.getDefault());
+		cal.set(Calendar.DAY_OF_MONTH, 1);
+		cal.set(Calendar.HOUR_OF_DAY, 0);
+		cal.set(Calendar.MINUTE, 0);
+		cal.set(Calendar.SECOND, 0);
+		cal.set(Calendar.MILLISECOND, 0);
+
 		LayoutInflater layoutInflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
 		calendarLayout = (LinearLayout) layoutInflater.inflate(R.layout.calendar_layout, null);
@@ -74,8 +80,7 @@ public class ExtendedCalendarView<T extends Event> extends FrameLayout implement
 		prev.setOnClickListener(this);
 
 		monthTextView = (TextView) calendarMonthLayout.findViewById(R.id.month_textview);
-		monthTextView.setText(context.getResources().getString(R.string.month_year,
-				getMonthName(cal), cal.get(Calendar.YEAR)));
+		monthTextView.setText(context.getResources().getString(R.string.month_year, getMonthName(cal), cal.get(Calendar.YEAR)));
 
 		next = (ImageButton) calendarMonthLayout.findViewById(R.id.month_next_btn);
 		next.setOnClickListener(this);
@@ -109,13 +114,23 @@ public class ExtendedCalendarView<T extends Event> extends FrameLayout implement
 		}
 	}
 
-	public void goToToday() {
-		Calendar todayCal = Calendar.getInstance(Locale.getDefault());
-		cal.set(Calendar.YEAR, todayCal.get(Calendar.YEAR));
-		cal.set(Calendar.MONTH, todayCal.get(Calendar.MONTH));
+	public Calendar getCurrentCalendar() {
+		return cal;
+	}
+
+	public void goToMonth(Calendar goToCal) {
+		if (goToCal == null) {
+			goToCal = Calendar.getInstance(Locale.getDefault());
+		}
+		cal.set(Calendar.YEAR, goToCal.get(Calendar.YEAR));
+		cal.set(Calendar.MONTH, goToCal.get(Calendar.MONTH));
 		rebuildCalendar();
 	}
-	
+
+	public void goToToday() {
+		goToMonth(null);
+	}
+
 	@Override
 	public void onClick(View v) {
 		int vId = v.getId();
@@ -139,8 +154,8 @@ public class ExtendedCalendarView<T extends Event> extends FrameLayout implement
 
 	private void rebuildCalendar() {
 		if (monthTextView != null) {
-			monthTextView.setText(context.getResources().getString(R.string.month_year,
-					getMonthName(cal), cal.get(Calendar.YEAR)));
+			monthTextView.setText(context.getResources().getString(R.string.month_year, getMonthName(cal),
+					cal.get(Calendar.YEAR)));
 		}
 		refreshCalendar();
 	}
@@ -280,7 +295,7 @@ public class ExtendedCalendarView<T extends Event> extends FrameLayout implement
 		this.duplicatesAvoided = duplicatesAvoided;
 		mAdapter.setDuplicatesAvoided(duplicatesAvoided);
 	}
-	
+
 	private String getMonthName(Calendar cal) {
 		return monthFormat.format(cal.getTime());
 	}

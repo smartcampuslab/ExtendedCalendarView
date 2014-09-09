@@ -18,6 +18,7 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.util.Log;
 import android.util.SparseArray;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -141,7 +142,6 @@ public class CalendarAdapter<T extends Event> extends BaseAdapter {
 				float sizeDp = 3f;
 				int sizePx = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, sizeDp, context.getResources()
 						.getDisplayMetrics());
-				;
 				drawable.setStroke(sizePx, todayColor);
 				setBg(v, drawable);
 			}
@@ -157,6 +157,7 @@ public class CalendarAdapter<T extends Event> extends BaseAdapter {
 				List<ImageView> ivList = new ArrayList<ImageView>();
 				for (int dec = 0; dec < day.getEventsCount(); dec++) {
 					Event event = (Event) day.getEvents().get(dec);
+					// Log.e(this.getClass().getSimpleName(), "" + event.getColor());
 					if (areDuplicatesAvoided() && listContainsColor(ivList, event.getColor())) {
 						continue;
 					}
