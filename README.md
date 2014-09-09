@@ -1,79 +1,66 @@
-ExtendedCalendarView
-====================
+ScExtendedCalendarView
+======================
 
-![ScreenShot](Screenshot_2014-01-10-19-57-06_framed.png)
-
-Currently there is no easy way of showing a calendar with the ability to display events on days, ExtendedCalendarView is meant to solve that problem.
+ScExtendedCalendarView is a fork of ExtendedCalendarView, a library that permits showing a calendar with the ability to display events on days.
 
 Usage
 =====
 
-simply declare it in your layout
+The best way is to create a new class that extends _ExtendedCalendarView_ (because of the Generics). E.g.:
 
-    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-      android:layout_width="match_parent"
-      android:layout_height="match_parent" >
+	package com.exampe.myapp;
+
+	import android.content.Context;
+	import android.util.AttributeSet;
+	import com.tyczj.extendedcalendarview.ExtendedCalendarView;
+	
+	public class MyCalendarView extends ExtendedCalendarView<Event> {
+
+		public MyCalendarView(Context context) {
+			super(context);
+		}
+	
+		public MyCalendarView(Context context, AttributeSet attrs) {
+			super(context, attrs);
+		}
+	
+		public MyCalendarView(Context context, AttributeSet attrs, int defStyle) {
+			super(context, attrs, defStyle);
+		}
+	}
+
+Simply declare it in your layout
+
+	<?xml version="1.0" encoding="utf-8"?>
+	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	    android:id="@+id/calendar_layout"
+	    android:layout_width="match_parent"
+	    android:layout_height="match_parent"
+	    android:orientation="vertical" >
+	
+	    <com.example.custom.MyCalendarView
+	        android:id="@+id/calendar_view"
+	        android:layout_width="match_parent"
+	        android:layout_height="match_parent" />
+	
+	</LinearLayout>
     
-    <com.tyczj.extendedcalendarview.ExtendedCalendarView 
-        android:id="@+id/calendar"
-        android:layout_height="match_parent"
-        android:layout_width="match_parent"/>
-    
-    </RelativeLayout>
-    
-get the view like you normally would
+and get the view like you normally would
 
-    ExtendedCalendarView calendar = (ExtendedCalendarView)findViewById(R.id.calendar);
+    MyCalendarView calendar = (MyCalendarView) findViewById(R.id.calendar_view);
 
-Calendar Content Provider
-=========================
+Calendar Events source
+======================
 
-All events are stored in a content provider for easy access and the ability to have other app hook into your calendar if you choose. make sure you declare the content provider in your manifest
+The content provider of the original library is deprecated.
 
-    <provider
-        android:name="com.tyczj.extendedcalendarview.CalendarProvider"
-        android:authorities="com.tyczj.extendedcalendarview.calendarprovider" />
-                
-if you dont want other apps to have access to your database make you add this attribute to the provider 
-    
-    android:permission="signature"    
-    
-Current database columns
+You need to implement the _EventsSource_ interface and the method _getEventsByMonth(Calendar calendar)_.
+The argument you need to provide is a _Calendar_ object that has to cointain the date of the month you need.
 
-    id - database id of the event
-    event (Text) - name of the event
-    location (Text) - where the event is
-    description (Text) - information about the event
-    start (Integer) - when the event starts
-    end (Integer) - when the event ends
-    start_day (Integer) - julian start day
-    end_day (Integer) - julian end day
-    color (Integer) - the color of the event
+The method has to return a _SparseArray_ of collections of _Event_ objects (or an object that extends the _Event_ class). The int key of the _SparseArray_ that references to a collection is the day of the month.
 
-Adding Events
-=============
+After that you need to set the _EventsSource_ instantiated object using the method _setCalendarEventsSource(EventsSource eventSource)_ of the _ExtendedCalendarView_ you got as said before.
 
-To add an event to the content provider you need the start time, end time, julian start day and julian end day. For now you will have to implement your own way to get all the information but eventually in the future I may create one that you can just call and use.
+In the _Event_ you can specify the color of the event (default is gray).
 
-    ContentValues values = new ContentValues();
-		values.put(CalendarProvider.COLOR, Event.COLOR_RED);
-		values.put(CalendarProvider.DESCRIPTION, "Some Description");
-		values.put(CalendarProvider.LOCATION, "Some location);
-		values.put(CalendarProvider.EVENT, "Event name);
-			
-		Calendar cal = Calendar.getInstance();
-			
-		cal.set(startDayYear, startDayMonth, startDayDay, startTimeHour, startTimeMin);
-		values.put(CalendarProvider.START, cal.getTimeInMillis());
-		values.put(CalendarProvider.START_DAY, julianDay);
-		TimeZone tz = TimeZone.getDefault();
-			
-		cal.set(endDayYear, endDayMonth, endDayDay, endTimeHour, endTimeMin);
-		int endDayJulian = Time.getJulianDay(cal.getTimeInMillis(), TimeUnit.MILLISECONDS.toSeconds(tz.getOffset(cal.getTimeInMillis())));
-			
-		values.put(CalendarProvider.END, cal.getTimeInMillis());
-		values.put(CalendarProvider.END_DAY, endDayJulian);
-
-		Uri uri = getContentResolver().insert(CalendarProvider.CONTENT_URI, values);
-		
-julian start day is generated for you when the month is built so all you would have to do it call day.getStartDay() on the day and it will give you the julian day
+Please take a look at the code of the _ExtendedCalendarView_ class for other useful methods like _setDuplicatesAvoided(Boolean duplicatesAvoided)_ or _setTodayColor(Color color)_.
